@@ -1,0 +1,13 @@
+*******************************************************************************************************************************************			
+
+					PROJECT 2 : VIRTUAL MEMORY IMPLEMENTATION IN PINTOS
+						Keyur Joshi-keyurjos@buffalo.edu
+
+********************************************************************************************************************************************
+
+1.This project implements virtual memory in pintos.The files are in the src/vm folder.
+
+2.The design document has been included in the pintos folder for refernce.
+
+3.The project was tested on timberlake under bash and on Ubuntu 13.04.In case test fails with no boot/no output produced run make clean and make this will produce a clean executable.Also if ssh is used with -Y (X11 tunneling) then -v from Make.tests can be removed so that emulator shows up.
+

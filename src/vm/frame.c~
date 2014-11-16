@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include "devices/timer.h"
+#include "threads/init.h"
+#include "threads/malloc.h"
+#include "threads/palloc.h"
+#include "threads/synch.h"
+#include "threads/vaddr.h"
+#include "threads/thread.h"
+#include "vm/frame.h"
+#include "vm/page.h"
+#include <string.h>
+/* Initialize the frame manager. */
+
+void
+frame_init (void)
+{
+list_init(lst);
+}
+
+
+/* Tries to allocate and lock a frame for PAGE.
+   Returns the frame if successful, false on failure. */
+
+struct frame *
+frame_alloc_and_lock (struct page *page)
+{
+void *kpage=palloc_get_page(PAL_USER|PAL_ZERO);
+if (kpage==NULL)
+{
+return NULL;
+}
+memset(kpage,0,PGSIZE);
+struct frame *frame=(struct frame*)malloc(sizeof(struct frame));
+frame->base=kpage;
+frame->paddr=page->addr;
+frame->pageptr=page;
+list_push_back(lst,&frame->elem);
+return frame;
+}
+
+/* Locks P's frame into memory, if it has one.
+   Upon return, p->frame will not change until P is unlocked. */
+
+void
+frame_lock (struct page *p)
+{
+ struct frame *frame = p->frame;
+  if (frame != NULL)
+    {
+      lock_acquire (&frame->frlock);
+
+    }
+
+}
+
+
+/* Releases frame F for use by another page.
+   F must be locked for use by the current process.
+   Any data in F is lost. */
+
+void
+frame_free (struct frame *f)
+{
+
+if (lock_held_by_current_thread(&f->frlock))
+{
+free(f);
+}
+
+}
+
+
+/* Unlocks frame F, allowing it to be evicted.
+   F must be locked for use by the current process. */
+
+void
+frame_unlock (struct frame *f)
+{
+
+if (lock_held_by_current_thread(&f->frlock))
+lock_release(&f->frlock);
+
+}
+
